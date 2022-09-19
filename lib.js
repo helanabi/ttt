@@ -48,12 +48,19 @@ function addTime(timeArray, seconds) {
     return makeTimeArray(timeArrayToSeconds(timeArray) + seconds);
 }
 
-function printTime(timeArray) {
-    if (process.stdout.isTTY) {
-	console.log("TODO"); 
-    } else {
-	console.log("Elapsed time:", timeArray.join(":"));
-    }
+function printTime(timeArray, overwrite=true) {
+    const tty = process.stdout;
+
+    const print = (clear=true) => {
+	tty.write(`${timeArray.join(":")}\n`);
+	if (clear) tty.clearScreenDown();
+    };
+    
+    if (tty.isTTY && overwrite) {
+	tty.moveCursor(null, -1, () => {
+	    tty.cursorTo(0, null, print);
+	});
+    } else print(false);
 }
 
 function start(taskName) {
@@ -70,10 +77,12 @@ function start(taskName) {
 
     console.log(`Tracking task: ${taskName}`);
 
-    const print = () => printTime(addTime(totalTime, secondsSince(startTime)));
+    const print = (update=true) => {
+	printTime(addTime(totalTime,secondsSince(startTime)), update);
+    };
 
-    setInterval(print, 5000);
-    print();
+    print(false);
+    setInterval(print, 5e3);
 }
 
 module.exports = { list, start };
