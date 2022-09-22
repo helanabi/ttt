@@ -1,3 +1,5 @@
+const readline = require("readline");
+
 const tasks = [
     {
 	name: "fso",
@@ -50,13 +52,13 @@ function addTime(timeArray, seconds) {
 
 function printTime(timeArray, overwrite=true) {
     const tty = process.stdout;
-
+    
     const print = (clear=true) => {
 	tty.write(`${timeArray.join(":")}\n`);
 	if (clear) tty.clearScreenDown();
     };
     
-    if (tty.isTTY && overwrite) {
+    if (tty.isTTY && overwrite) { // TODO: Abandon support for non-terminal stdout
 	tty.moveCursor(null, -1, () => {
 	    tty.cursorTo(0, null, print);
 	});
@@ -72,17 +74,63 @@ function start(taskName) {
 	process.exit();
     }
 
-    const startTime = new Date();
-    const totalTime = task.duration.split(":").map(s => +s);
+    let startTime;
+    let totalTime;
+    let printer;
 
-    console.log(`Tracking task: ${taskName}`);
+    const eventHandlers = {
+	resume() {
+	    startTime = new Date();
+	    totalTime = task.duration.split(":").map(s => +s);
 
-    const print = (update=true) => {
-	printTime(addTime(totalTime,secondsSince(startTime)), update);
+	    const print = (update=true) => {
+		printTime(addTime(totalTime, secondsSince(startTime)), update);
+	    };
+
+	    console.log("Resuming");
+	    print(false);
+	    printer = setInterval(print, 1e3); // Change this to 60e3 in production
+	},
+	
+	pause(msg) {
+	    clearInterval(printer);
+	    console.log(msg);
+	    task.duration = addTime(totalTime,
+				    secondsSince(startTime)).join(":");
+	}
     };
 
-    print(false);
-    setInterval(print, 5e3);
+    console.log(`Tracking task: ${taskName}`);
+    eventHandlers.resume();
+    handleUserInput(eventHandlers);
+}
+
+function handleUserInput(handler) {
+    let paused = false;
+    
+    const terminal = process.stdin;
+    readline.emitKeypressEvents(terminal);
+    terminal.setRawMode(true);
+
+    terminal.on("keypress", (str, key) => {
+	switch (key.name) {
+	case "space":
+	    if (paused) {
+		handler.resume();
+		paused = false;
+	    } else {
+		handler.pause("Paused");
+		paused = true;
+	    }
+	    
+	    break;
+	    
+	case "q":
+	    if (!paused) handler.pause("Stopped");
+	    process.exit();
+	    break;
+	}
+    });
 }
 
 module.exports = { list, start };

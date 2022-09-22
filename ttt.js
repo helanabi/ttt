@@ -21,7 +21,7 @@ const doc = `
    Invokation with no arguments lists all known tasks.
    If TASK is provided, it will cause the program to start tracking
    time spent on the specified task.  Tracking can be paused then resumed
-   by pressing (CTRL+P), or halted by sending an Interrupt signal (CTRL+C).
+   by pressing the spacebar, or halted by pressing 'q'.
 
 
    OPTIONS
