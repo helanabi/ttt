@@ -22,6 +22,8 @@ const doc = `
    If TASK is provided, it will cause the program to start tracking
    time spent on the specified task.  Tracking can be paused then resumed
    by pressing the spacebar, or halted by pressing 'q'.
+   Pressing 'a' will cause the program to abort without saving time tracked during
+   the current session.
 
 
    OPTIONS

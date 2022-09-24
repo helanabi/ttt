@@ -1,25 +1,19 @@
+const fs = require("fs/promises");
 const readline = require("readline");
 
-const tasks = [
-    {
-	name: "fso",
-	duration: "36:07:00"
-    },
-    {
-	name: "cs61a",
-	duration: "987:12:15"
-    },
-    {
-	name: "mdn",
-	duration: "87:03:20"
-    },
-    {
-	name: "ttt",
-	duration: "00:30:24"
+const TASKS_FILENAME = `${__dirname}/tasks.json`;
+
+function loadTasks() {
+    try {
+	return require(TASKS_FILENAME);
+    } catch (_) {
+	return [];
     }
-];
+}
 
 function list() {
+    const tasks = loadTasks();
+    
     if (tasks.length === 0)
 	console.log("No tasks are currenlty saved.\n" +
 		    "Use 'ttt -a TASK' to add one.");
@@ -66,6 +60,7 @@ function printTime(timeArray, overwrite=true) {
 }
 
 function start(taskName) {
+    const tasks = loadTasks();
     const task = tasks.find(t => t.name === taskName);
 
     if (!task) {
@@ -97,6 +92,11 @@ function start(taskName) {
 	    console.log(msg);
 	    task.duration = addTime(totalTime,
 				    secondsSince(startTime)).join(":");
+	},
+
+	async save() {
+	    console.log("Saving data...");
+	    await fs.writeFile(TASKS_FILENAME, JSON.stringify(tasks));
 	}
     };
 
@@ -114,6 +114,10 @@ function handleUserInput(handler) {
 
     terminal.on("keypress", (str, key) => {
 	switch (key.name) {
+	case "a":
+	    console.log("aborting...");
+	    process.exit();
+	    break;
 	case "space":
 	    if (paused) {
 		handler.resume();
@@ -126,8 +130,21 @@ function handleUserInput(handler) {
 	    break;
 	    
 	case "q":
-	    if (!paused) handler.pause("Stopped");
-	    process.exit();
+	    if (!paused) {
+		handler.pause("Stopped");
+		paused = true;
+	    }
+
+	    handler.save()
+		.then(() => {
+		    console.log("Done.");
+		    process.exit();
+		})
+		.catch(err => {
+		    console.error(err.name, err.message);
+		    console.error("Press 'q' to try again, " +
+				  "or 'a' to abort without saving.");
+		});
 	    break;
 	}
     });
