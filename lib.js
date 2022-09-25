@@ -11,6 +11,13 @@ function loadTasks() {
     }
 }
 
+function formatName(name, col=15, gap=5) {
+    return (name.length <= col - gap ?
+	    name :
+	    name.slice(0, col-gap) + "...")
+	.padEnd(col, " ");
+}
+
 function list() {
     const tasks = loadTasks();
     
@@ -18,8 +25,8 @@ function list() {
 	console.log("No tasks are currenlty saved.\n" +
 		    "Use 'ttt -a TASK' to add one.");
     else {
-	console.log("NAME\tDURATION");
-	tasks.map(task => `${task.name}\t${task.duration}`)
+	console.log(`${formatName("NAME")}DURATION`);
+	tasks.map(task => `${formatName(task.name)}${task.duration}`)
 	    .forEach(task => console.log(task));
     }
 }
