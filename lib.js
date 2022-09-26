@@ -54,20 +54,25 @@ function addTime(timeArray, seconds) {
 function printTime(timeArray, overwrite=true) {
     const tty = process.stdout;
     
-    const print = (clear=true) => {
+    const print = () => {
 	timeStr = timeArray.map(n => String(n).padStart(2, "0")).join(":");
 	tty.write(`${timeStr}\n`);
-	if (clear) tty.clearScreenDown();
+	tty.clearScreenDown();
     };
     
-    if (tty.isTTY && overwrite) { // TODO: Abandon support for non-terminal stdout
+    if (overwrite) {
 	tty.moveCursor(null, -1, () => {
 	    tty.cursorTo(0, null, print);
 	});
-    } else print(false);
+    } else print();
 }
 
 function start(taskName) {
+    if (!process.stdout.isTTY) {
+	console.error("stdout is not a terminal.  Exiting...");
+	process.exit(1);
+    }
+    
     const tasks = loadTasks();
     const task = tasks.find(t => t.name === taskName);
 
