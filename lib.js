@@ -55,7 +55,8 @@ function printTime(timeArray, overwrite=true) {
     const tty = process.stdout;
     
     const print = (clear=true) => {
-	tty.write(`${timeArray.join(":")}\n`);
+	timeStr = timeArray.map(n => String(n).padStart(2, "0")).join(":");
+	tty.write(`${timeStr}\n`);
 	if (clear) tty.clearScreenDown();
     };
     
@@ -91,7 +92,7 @@ function start(taskName) {
 
 	    console.log("Resuming");
 	    print(false);
-	    printer = setInterval(print, 1e3); // Change this to 60e3 in production
+	    printer = setInterval(print, 1e3);
 	},
 	
 	pause(msg) {
