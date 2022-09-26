@@ -3,6 +3,27 @@ const readline = require("readline");
 
 const TASKS_FILENAME = `${__dirname}/tasks.json`;
 
+function Duration(s=0) {
+    this.seconds = s;
+
+    this.addTimeSince = function(date) {
+	return new Duration(this.seconds + Math.floor((Date.now() - date) / 1000));
+    };
+
+    this.toString = function() {
+	return [
+	    Math.floor(this.seconds / 3600),
+	    Math.floor(this.seconds % 3600 / 60),
+	    this.seconds % 60
+	].map(n => String(n).padStart(2, "0")).join(":");
+    };
+}
+
+Duration.fromStr = function(str) {
+    const arr = str.split(":").map(s => +s);
+    return new Duration(arr[0]*3600 + arr[1]*60 + arr[2]);
+};
+
 function loadTasks() {
     try {
 	return require(TASKS_FILENAME);
@@ -31,32 +52,11 @@ function list() {
     }
 }
 
-function secondsSince(date) {
-    return Math.floor((new Date() - date) / 1000);
-}
-
-function makeTimeArray(seconds) {
-    return [
-	Math.floor(seconds / 3600),
-	Math.floor(seconds % 3600 / 60),
-	seconds % 60
-    ];	
-}
-
-function timeArrayToSeconds(timeArray) {
-    return timeArray[0]*3600 + timeArray[1]*60 + timeArray[2];
-}
-
-function addTime(timeArray, seconds) {
-    return makeTimeArray(timeArrayToSeconds(timeArray) + seconds);
-}
-
-function printTime(timeArray, overwrite=true) {
+function printTime(duration, overwrite=true) {
     const tty = process.stdout;
     
     const print = () => {
-	timeStr = timeArray.map(n => String(n).padStart(2, "0")).join(":");
-	tty.write(`${timeStr}\n`);
+	tty.write(`${duration}\n`);
 	tty.clearScreenDown();
     };
     
@@ -88,11 +88,11 @@ function start(taskName) {
 
     const eventHandlers = {
 	resume() {
-	    startTime = new Date();
-	    totalTime = task.duration.split(":").map(s => +s);
+	    startTime = Date.now();
+	    totalTime = Duration.fromStr(task.duration);
 
 	    const print = (update=true) => {
-		printTime(addTime(totalTime, secondsSince(startTime)), update);
+		printTime(totalTime.addTimeSince(startTime), update);
 	    };
 
 	    console.log("Resuming");
@@ -103,8 +103,7 @@ function start(taskName) {
 	pause(msg) {
 	    clearInterval(printer);
 	    console.log(msg);
-	    task.duration = addTime(totalTime,
-				    secondsSince(startTime)).join(":");
+	    task.duration = totalTime.addTimeSince(startTime).toString();
 	},
 
 	async save() {
