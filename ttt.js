@@ -12,7 +12,7 @@ const doc = `
 
    SYNOPSIS
 
-   ttt [TASK]
+   ttt [[-s] TASK]
    ttt -a TASK
    
 
@@ -29,6 +29,7 @@ const doc = `
    OPTIONS
 
    -a, --add TASK	Add a new task
+   -s, --seconds        Display seconds while tracking TASK
    -h, --help		Show help
    -v, --version	Display version and copyright information
 
@@ -55,6 +56,8 @@ function main(argv) {
 	console.log(version);
     else if (argv.length === 1 && argv[0] !== "-a")
 	lib.start(argv[0]);
+    else if (argv.length === 2 && argv[0] === "-s")
+	lib.start(argv[1], true);
     else if (argv.length === 2 && argv[0] === "-a")
 	lib.add(argv[1]);
     else {

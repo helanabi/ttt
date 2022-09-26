@@ -10,12 +10,17 @@ function Duration(s=0) {
 	return new Duration(this.seconds + Math.floor((Date.now() - date) / 1000));
     };
 
-    this.toString = function() {
-	return [
+    this.toString = function(includeSeconds) {
+	const arr = [
 	    Math.floor(this.seconds / 3600),
-	    Math.floor(this.seconds % 3600 / 60),
-	    this.seconds % 60
-	].map(n => String(n).padStart(2, "0")).join(":");
+	    Math.floor(this.seconds % 3600 / 60)
+	];
+	
+	if (includeSeconds) {
+	    arr.push(this.seconds % 60);
+	}
+	
+	return arr.map(n => String(n).padStart(2, "0")).join(":");
     };
 }
 
@@ -52,11 +57,11 @@ function list() {
     }
 }
 
-function printTime(duration, overwrite=true) {
+function printTime(duration, overwrite=true, printSeconds) {
     const tty = process.stdout;
     
     const print = () => {
-	tty.write(`${duration}\n`);
+	tty.write(`${duration.toString(printSeconds)}\n`);
 	tty.clearScreenDown();
     };
     
@@ -67,7 +72,7 @@ function printTime(duration, overwrite=true) {
     } else print();
 }
 
-function start(taskName) {
+function start(taskName, printSeconds) {
     if (!process.stdout.isTTY) {
 	console.error("stdout is not a terminal.  Exiting...");
 	process.exit(1);
@@ -92,18 +97,18 @@ function start(taskName) {
 	    totalTime = Duration.fromStr(task.duration);
 
 	    const print = (update=true) => {
-		printTime(totalTime.addTimeSince(startTime), update);
+		printTime(totalTime.addTimeSince(startTime), update, printSeconds);
 	    };
 
 	    console.log("Resuming");
 	    print(false);
-	    printer = setInterval(print, 1e3);
+	    printer = setInterval(print, printSeconds ? 1e3 : 60e3);
 	},
 	
 	pause(msg) {
 	    clearInterval(printer);
 	    console.log(msg);
-	    task.duration = totalTime.addTimeSince(startTime).toString();
+	    task.duration = totalTime.addTimeSince(startTime).toString(true);
 	},
 
 	async save() {
