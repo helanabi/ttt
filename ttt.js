@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/*
+  Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+*/
+
 const lib = require("./lib.js");
 
 const VERSION_NUM = "0.1.0";
@@ -34,12 +39,17 @@ const doc = `
    -v, --version	Display version and copyright information
 
 
-   AUTHORS
+  COPYRIGHT
 
-   Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
+  ttt Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+
+  This is free software; you are free to change and redistribute it.
+  There is NO WARRANTY, to the extent permitted by law.
 `;
 
 const version = `ttt version ${VERSION_NUM}
+
 Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 

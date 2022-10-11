@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+*/
+
 const fs = require("fs/promises");
 const readline = require("readline");
 const Duration = require("./duration.js");

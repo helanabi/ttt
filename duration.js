@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2022 Hassan El anabi (al-annabi.tech)
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+*/
+
 function Duration(s=0) {
     this.seconds = s;
 }
