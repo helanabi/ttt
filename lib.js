@@ -1,33 +1,8 @@
 const fs = require("fs/promises");
 const readline = require("readline");
+const Duration = require("./duration.js");
 
 const TASKS_FILENAME = `${__dirname}/tasks.json`;
-
-function Duration(s=0) {
-    this.seconds = s;
-
-    this.addTimeSince = function(date) {
-	return new Duration(this.seconds + Math.floor((Date.now() - date) / 1000));
-    };
-
-    this.toString = function(includeSeconds) {
-	const arr = [
-	    Math.floor(this.seconds / 3600),
-	    Math.floor(this.seconds % 3600 / 60)
-	];
-	
-	if (includeSeconds) {
-	    arr.push(this.seconds % 60);
-	}
-	
-	return arr.map(n => String(n).padStart(2, "0")).join(":");
-    };
-}
-
-Duration.fromStr = function(str) {
-    const arr = str.split(":").map(s => +s);
-    return new Duration(arr[0]*3600 + arr[1]*60 + arr[2]);
-};
 
 function loadTasks() {
     try {
@@ -46,12 +21,13 @@ function formatName(name, col=15, gap=5) {
 
 function list() {
     const tasks = loadTasks();
-    
+
     if (tasks.length === 0)
 	console.log("No tasks are currenlty saved.\n" +
 		    "Use 'ttt -a TASK' to add one.");
     else {
 	console.log(`${formatName("NAME")}DURATION`);
+	console.log(`${formatName("----")}--------`);
 	tasks.map(task => `${formatName(task.name)}${task.duration}`)
 	    .forEach(task => console.log(task));
     }
