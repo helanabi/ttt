@@ -33,6 +33,29 @@ function list() {
     }
 }
 
+function add(task) {
+    const tasks = loadTasks();
+
+    if (tasks.some(t => t.name === task)) {
+	console.log(`Task '${task}' already exists!`);
+	return;
+    }
+    
+    tasks.push({
+	name: task,
+	duration: new Duration().toString(true)
+    });
+    
+    fs.writeFile(TASKS_FILENAME, JSON.stringify(tasks))
+	.then(() => {
+	    console.log(`New task '${task}' added successfully`);
+	})
+	.catch(err => {
+	    console.error(err.name, err.message);
+	    process.exit(1);
+	}); 
+}
+
 function printTime(duration, overwrite=true, printSeconds) {
     const tty = process.stdout;
     
@@ -143,4 +166,4 @@ function handleUserInput(handler) {
     });
 }
 
-module.exports = { list, start };
+module.exports = { add, list, start };

@@ -50,16 +50,22 @@ There is NO WARRANTY, to the extent permitted by law.
 function main(argv) {
     if (argv.length === 0)
 	lib.list();
-    else if (argv.length === 1 && argv[0] === "-h")
+    
+    else if (argv[0] === "-h")
 	console.log(doc);
-    else if (argv.length === 1 && argv[0] === "-v")
+    
+    else if (argv[0] === "-v")
 	console.log(version);
-    else if (argv.length === 1 && argv[0] !== "-a")
+    
+    else if (argv.length === 1)
 	lib.start(argv[0]);
+    
     else if (argv.length === 2 && argv[0] === "-s")
 	lib.start(argv[1], true);
+    
     else if (argv.length === 2 && argv[0] === "-a")
 	lib.add(argv[1]);
+    
     else {
 	console.error("Invalid usage.  Use -h for help");
 	process.exit(1);
